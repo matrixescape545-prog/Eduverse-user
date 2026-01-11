@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>EduVerse</title>
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --highlight-color: #0f3460;
+            --accent-color: #e94560;
+            --font-color: #ffffff;
+            --glass-bg: rgba(22, 33, 62, 0.7);
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-color);
+            color: var(--font-color);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        #app-container {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* --- Auth Screen --- */
+        #auth-screen {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(45deg, #1a1a2e, #0f3460);
+            animation: gradient-animation 15s ease infinite;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #auth-screen::before, #auth-screen::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--neon-pink), transparent 60%);
+            animation: glow-move-1 20s linear infinite;
+            filter: blur(80px);
+        }
+
+        #auth-screen::after {
+            background: radial-gradient(circle, var(--neon-blue), transparent 60%);
+            animation: glow-move-2 20s linear infinite;
+            animation-delay: -10s;
+        }
+
+        @keyframes glow-move-1 {
+            0% { transform: translate(-150%, -150%); }
+            25% { transform: translate(150%, -50%); }
+            50% { transform: translate(100%, 150%); }
+            75% { transform: translate(-150%, 100%); }
+            100% { transform: translate(-150%, -150%); }
+        }
+        @keyframes glow-move-2 {
+            0% { transform: translate(150%, 150%); }
+            25% { transform: translate(-150%, 50%); }
+            50% { transform: translate(-100%, -150%); }
+            75% { transform: translate(150%, -100%); }
+            100% { transform: translate(150%, 150%); }
+        }
+
+        .auth-box {
+            z-index: 10;
+            width: 90%;
+            max-width: 400px;
+            padding: 40px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-align: center;
+        }
+        
+        .auth-box h2 {
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 14px 10px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--font-color);
+            font-size: 1.1em;
+            outline: none;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent-color);
+            color: var(--font-color);
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .btn:hover {
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        .toggle-link {
+            color: var(--neon-blue);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        #signup-form { display: none; }
+        .hidden { display: none !important; }
+
+        /* --- Main App Screen --- */
+        #main-app {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            background: var(--primary-color);
+        }
+
+        .app-header {
+            padding: 15px;
+            background: var(--secondary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+        
+        .app-header h1 {
+            font-size: 1.5em;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .app-content {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .view {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .view.active-view {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--secondary-color);
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--highlight-color);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            border-color: var(--accent-color);
+        }
+
+        .card h3 {
+            font-size: 1.2em;
+            color: var(--font-color);
+            z-index: 2;
+            position: relative;
+        }
+        
+        .batch-card {
+            min-height: 120px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .batch-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent 60%);
+            z-index: 1;
+        }
+
+        
+        .lecture-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .lecture-card img {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        #breadcrumb {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        #breadcrumb a {
+            color: var(--neon-blue);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        #breadcrumb span {
+            color: #aaa;
+        }
+
+        #lecture-player {
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 15px;
+        }
+
+        #lecture-player iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        #lecture-details {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .lecture-links a {
+             margin-right: 15px;
+             color: var(--font-color);
+             background: var(--highlight-color);
+             padding: 10px 15px;
+             border-radius: 8px;
+             text-decoration: none;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            color: var(--font-color);
+            font-size: 1.5em;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+
+        .form-container {
+            background: var(--secondary-color);
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        #key-status-card {
+            cursor: default;
+        }
+        
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5em;
+            text-align: center;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+            border-radius: 15px; /* Match parent */
+        }
+        
+        #live-lecture-container {
+            margin-bottom: 20px;
+        }
+
+        .live-card {
+            background: linear-gradient(90deg, var(--accent-color), #ff7f50);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(233, 69, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(233, 69, 96, 0); }
+        }
+
+        .live-indicator {
+            font-weight: bold;
+            background: white;
+            color: var(--accent-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            animation: blink 1s linear infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.5; }
+        }
+        
+        #live-timer {
+            font-size: 0.9em;
+            margin-top: 10px;
+            background-color: rgba(0,0,0,0.2);
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Auth Screen -->
+        <div id="auth-screen">
+            <div class="auth-box">
+                <!-- Login Form -->
+                <form id="login-form">
+                    <h2>Login</h2>
+                    <div class="input-group">
+                        <input type="email" id="login-email" required placeholder="Email">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="login-password" required placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                    <p>No account? <a href="#" class="toggle-link" id="show-signup">Sign Up</a></p>
+                </form>
+                <!-- Signup Form -->
+                <form id="signup-form">
+                    <h2>Sign Up</h2>
+                    <div class="input-group">
+                        <input type="email" id="signup-email" required placeholder="Email">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="signup-password" required placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn">Sign Up</button>
+                    <p>Have an account? <a href="#" class="toggle-link" id="show-login">Login</a></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="hidden">
+            <header class="app-header">
+                <h1 id="app-title">EduVerse</h1>
+                <div>
+                    <button id="key-btn" class="header-btn" title="My Key">🔑</button>
+                    <button id="logout-btn" class="header-btn" title="Logout">🚪</button>
+                </div>
+            </header>
+            <main class="app-content" id="app-content">
+                <div id="live-lecture-container"></div>
+                <div id="breadcrumb"></div>
+                <div id="content-views">
+                    <!-- Class View -->
+                    <div id="classes-view" class="view active-view">
+                        <h2>Classes</h2>
+                        <div id="classes-grid" class="grid-container"></div>
+                    </div>
+                    <!-- Batch View -->
+                    <div id="batches-view" class="view">
+                        <h2 id="batches-title"></h2>
+                        <div id="batches-grid" class="grid-container"></div>
+                    </div>
+                    <!-- Subject View -->
+                    <div id="subjects-view" class="view">
+                        <h2 id="subjects-title"></h2>
+                        <div id="subjects-grid" class="grid-container"></div>
+                    </div>
+                    <!-- Chapter View -->
+                    <div id="chapters-view" class="view">
+                        <h2 id="chapters-title"></h2>
+                        <div id="chapters-grid" class="grid-container"></div>
+                    </div>
+                    <!-- Lecture View -->
+                    <div id="lectures-view" class="view">
+                        <h2 id="lectures-title"></h2>
+                        <div id="lectures-grid" class="grid-container"></div>
+                    </div>
+                     <!-- Single Lecture View -->
+                    <div id="single-lecture-view" class="view">
+                        <div id="lecture-player"></div>
+                    </div>
+                    <!-- Key Management View -->
+                    <div id="key-view" class="view">
+                        <h2>My Access Key</h2>
+                        <div id="key-status-card" class="card"></div>
+                        <div class="form-container">
+                            <h3>Get an Access Key</h3>
+                            <p>Click the button below to go to our partner's page and generate a new access key. After completion, you will be redirected back and your key will be activated automatically.</p>
+                            <br>
+                            <button id="generate-key-redirect-btn" class="btn">Generate Access Key</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+        <script type="module">
+
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+
+            import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+
+            import { getDatabase, ref, onValue, set, get, update, remove, push } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+    
+
+            const firebaseConfig = { 
+
+                apiKey: "AIzaSyDvdyfc2I7GPruvP1-YXuMXLiFSUWnts2c", 
+
+                authDomain: "eduverse-67ccc.firebaseapp.com", 
+
+                databaseURL: "https://eduverse-67ccc-default-rtdb.firebaseio.com", 
+
+                projectId: "eduverse-67ccc", 
+
+                storageBucket: "eduverse-67ccc.firebasestorage.app", 
+
+                messagingSenderId: "693300069796", 
+
+                appId: "1:693300069796:web:49b570eb5cd416bbac6d31", 
+
+                measurementId: "G-54LY78PNX7" 
+
+            };
+
+    
+
+            const app = initializeApp(firebaseConfig);
+
+            const auth = getAuth(app);
+
+            const db = getDatabase(app);
+
+    
+
+            // --- DOM Elements ---
+
+            const authScreen = document.getElementById('auth-screen');
+
+            const mainApp = document.getElementById('main-app');
+
+            const loginForm = document.getElementById('login-form');
+
+            const signupForm = document.getElementById('signup-form');
+
+            const classesRef = ref(db, 'classes');
+
+            const breadcrumb = document.getElementById('breadcrumb');
+
+            const keyBtn = document.getElementById('key-btn');
+
+            const generateKeyRedirectBtn = document.getElementById('generate-key-redirect-btn');
+
+            const keyStatusCard = document.getElementById('key-status-card');
+
+            const liveContainer = document.getElementById('live-lecture-container');
+
+            const liveLecturesRef = ref(db, 'liveLectures');
+
+            
+
+            let navigationState = [];
+
+            window.userHasActiveKey = false;
+
+            let liveTimerInterval;
+
+    
+
+            // --- Auth Form Toggling ---
+
+            document.getElementById('show-signup').addEventListener('click', (e) => { e.preventDefault(); loginForm.style.display = 'none'; signupForm.style.display = 'block'; });
+
+            document.getElementById('show-login').addEventListener('click', (e) => { e.preventDefault(); signupForm.style.display = 'none'; loginForm.style.display = 'block'; });
+
+    
+
+            // --- Auth Actions ---
+
+            signupForm.addEventListener('submit', (e) => {
+
+                e.preventDefault();
+
+                const email = document.getElementById('signup-email').value;
+
+                const password = document.getElementById('signup-password').value;
+
+                createUserWithEmailAndPassword(auth, email, password).catch(error => alert(error.message));
+
+            });
+
+    
+
+            loginForm.addEventListener('submit', (e) => {
+
+                e.preventDefault();
+
+                const email = document.getElementById('login-email').value;
+
+                const password = document.getElementById('login-password').value;
+
+                signInWithEmailAndPassword(auth, email, password).catch(error => alert(error.message));
+
+            });
+
+    
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+
+                if (confirm('Are you sure you want to log out?')) {
+
+                    signOut(auth).catch(error => alert(error.message));
+
+                }
+
+            });
+
+    
+
+            // --- Main App Navigation ---
+
+            document.getElementById('app-title').style.cursor = 'pointer';
+
+            document.getElementById('app-title').onclick = () => {
+
+                navigationState = [];
+
+                navigateTo('classes-view', 'Classes', window.allData, renderClassCard);
+
+            };
+
+            
+
+            keyBtn.addEventListener('click', () => {
+
+                navigationState = [];
+
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+
+                document.getElementById('key-view').classList.add('active-view');
+
+                updateBreadcrumb();
+
+                breadcrumb.querySelector('a').textContent = "Home";
+
+            });
+
+            
+
+            // --- Key Generation (User) ---
+
+            generateKeyRedirectBtn.addEventListener('click', async () => {
+
+                const configRef = ref(db, 'config/shortenerUrl');
+
+                const snapshot = await get(configRef);
+
+                if (snapshot.exists() && snapshot.val()) {
+
+                    window.location.href = snapshot.val();
+
+                } else {
+
+                    alert('The key generation link is not configured yet. Please check back later.');
+
+                }
+
+            });
+
+    
+
+            // --- Core Rendering Logic ---
+
+            function navigateTo(viewId, title, data, renderer) {
+
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+
+                const targetView = document.getElementById(viewId);
+
+                const grid = targetView.querySelector('.grid-container');
+
+                const titleEl = targetView.querySelector('h2');
+
+                if(titleEl) titleEl.textContent = title;
+
+                grid.innerHTML = '';
+
+                if (data && Object.keys(data).length > 0) {
+
+                    Object.keys(data).forEach(id => grid.appendChild(renderer(id, data[id])));
+
+                } else {
+
+                    grid.innerHTML = '<p>No content available.</p>';
+
+                }
+
+                targetView.classList.add('active-view');
+
+                updateBreadcrumb();
+
+            }
+
+    
+
+            function updateBreadcrumb() {
+
+                breadcrumb.innerHTML = '';
+
+                const homeLink = document.createElement('a');
+
+                homeLink.textContent = 'Home';
+
+                homeLink.onclick = () => {
+
+                    navigationState = [];
+
+                    navigateTo('classes-view', 'Classes', window.allData, renderClassCard);
+
+                };
+
+                breadcrumb.appendChild(homeLink);
+
+    
+
+                navigationState.forEach((state, index) => {
+
+                    breadcrumb.appendChild(document.createTextNode(' / '));
+
+                    const link = document.createElement('a');
+
+                    link.textContent = state.name;
+
+                    link.onclick = () => { /* Simplified navigation; full history would be more complex */
+
+                        homeLink.click();
+
+                    };
+
+                    breadcrumb.appendChild(link);
+
+                });
+
+            }
+
+            
+
+            // --- Content Card Renderers ---
+
+            function renderClassCard(id, data) {
+
+                const card = document.createElement('div');
+
+                card.className = 'card';
+
+                card.innerHTML = `<h3>${data.name}</h3>`;
+
+                card.onclick = () => {
+
+                    navigationState.push({type: 'class', id, name: data.name});
+
+                    navigateTo('batches-view', `Batches in ${data.name}`, data.batches || {}, renderBatchCard);
+
+                };
+
+                return card;
+
+            }
+
+    
+
+                            function renderBatchCard(id, data) {
+
+    
+
+                                const card = document.createElement('div');
+
+    
+
+                                card.className = 'card batch-card';
+
+    
+
+                                if (data.bannerUrl) {
+
+    
+
+                                    card.style.backgroundImage = `url(${data.bannerUrl})`;
+
+    
+
+                                }
+
+    
+
+                                if (data.bannerWidth) {
+
+    
+
+                                    card.style.width = data.bannerWidth;
+
+    
+
+                                }
+
+    
+
+                                if (data.bannerHeight) {
+
+    
+
+                                    card.style.height = data.bannerHeight;
+
+    
+
+                                }
+
+    
+
+                                card.innerHTML = `<h3>${data.name}</h3>`;
+
+    
+
+                                card.onclick = () => {
+
+    
+
+                                    navigationState.push({type: 'batch', id, name: data.name});
+
+    
+
+                                    navigateTo('subjects-view', `Subjects in ${data.name}`, data.subjects || {}, renderSubjectCard);
+
+    
+
+                                };
+
+    
+
+                                return card;
+
+    
+
+                            }
+
+    
+
+            function renderSubjectCard(id, data) {
+
+                const card = document.createElement('div');
+
+                card.className = 'card';
+
+                card.innerHTML = `<h3>${data.name}</h3>`;
+
+                card.onclick = () => {
+
+                    navigationState.push({type: 'subject', id, name: data.name});
+
+                    navigateTo('chapters-view', `Chapters in ${data.name}`, data.chapters || {}, renderChapterCard);
+
+                };
+
+                return card;
+
+            }
+
+    
+
+            function renderChapterCard(id, data) {
+
+                const card = document.createElement('div');
+
+                card.className = 'card';
+
+                card.innerHTML = `<h3>${data.name}</h3>`;
+
+                card.onclick = () => {
+
+                    navigationState.push({type: 'chapter', id, name: data.name});
+
+                    navigateTo('lectures-view', `Lectures in ${data.name}`, data.lectures || {}, renderLectureCard);
+
+                };
+
+                return card;
+
+            }
+
+    
+
+            function renderLectureCard(id, data) {
+
+                const card = document.createElement('div');
+
+                card.className = 'card lecture-card';
+
+                const isLocked = data.visibility !== 'free' && !window.userHasActiveKey;
+
+                if (isLocked) card.classList.add('locked');
+
+                card.innerHTML = `<img src="${data.thumbnailUrl || 'https://via.placeholder.com/80x60'}" alt="thumbnail"><div><h3>${data.title}</h3><p>${data.visibility === 'free' ? 'Free' : `🔑 ${isLocked ? 'Locked' : 'Unlocked'}`}</p></div>`;
+
+                card.onclick = () => {
+
+                    navigationState.push({type: 'lecture', id, name: data.title});
+
+                    showLecture(data);
+
+                };
+
+                return card;
+
+            }
+
+    
+
+            // --- Lecture & Access Control ---
+
+            function showLecture(data, isLive = false) {
+
+                 document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+
+                 const view = document.getElementById('single-lecture-view');
+
+                 const player = document.getElementById('lecture-player');
+
+                 player.innerHTML = '';
+
+                 const hasAccess = window.userHasActiveKey || data.visibility === 'free';
+
+    
+
+                 if (!hasAccess) {
+
+                     player.innerHTML = `<div class="locked-overlay"><span>🔑 This ${isLive ? 'live broadcast' : 'lecture'} requires an active key.</span><button id="go-to-key-btn" class="btn">Activate a Key</button></div>`;
+
+                     document.getElementById('go-to-key-btn').onclick = () => keyBtn.click();
+
+                 } else {
+
+                     let videoUrl = data.videoUrl;
+
+                     if (videoUrl.includes('youtube.com/watch?v=')) videoUrl = `https://www.youtube.com/embed/${videoUrl.split('v=')[1]}`;
+
+                     else if (videoUrl.includes('youtube.com/live/')) videoUrl = `https://www.youtube.com/embed/${videoUrl.split('live/')[1].split('?')[0]}`;
+
+                    
+
+                     let timerHTML = '';
+
+                     if (isLive) {
+
+                         timerHTML = `<div id="live-timer"></div>`;
+
+                         startLiveTimer(data.endTime);
+
+                     }
+
+                     player.innerHTML = `<iframe src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><div id="lecture-details"><h2>${data.title} ${isLive ? '<span class="live-indicator">LIVE</span>' : ''}</h2>${timerHTML}<div class="lecture-links"><a href="${data.notesUrl}" target="_blank" style="${!data.notesUrl && 'display:none'}">Notes PDF</a><a href="${data.dppUrl}" target="_blank" style="${!data.dppUrl && 'display:none'}">DPP PDF</a></div></div>`;
+
+                 }
+
+                 view.classList.add('active-view');
+
+                 updateBreadcrumb();
+
+            }
+
+            
+
+            function startLiveTimer(endTime) {
+
+                clearInterval(liveTimerInterval);
+
+                const timerDiv = document.getElementById('live-timer');
+
+                liveTimerInterval = setInterval(() => {
+
+                    const remaining = endTime - Date.now();
+
+                    if (remaining <= 0) {
+
+                        if(timerDiv) timerDiv.textContent = 'Live session has ended.';
+
+                        clearInterval(liveTimerInterval);
+
+                    } else {
+
+                        const hours = Math.floor(remaining / 3600000);
+
+                        const minutes = Math.floor((remaining % 3600000) / 60000);
+
+                        const seconds = Math.floor((remaining % 60000) / 1000);
+
+                        if(timerDiv) timerDiv.textContent = `Ends in: ${hours}h ${minutes}m ${seconds}s`;
+
+                    }
+
+                }, 1000);
+
+            }
+
+    
+
+            // --- Key Activation & Status ---
+
+            async function checkUserKey(user) {
+
+                const userKeyRef = ref(db, `users/${user.uid}/activeKey`);
+
+                const snapshot = await get(userKeyRef);
+
+                if (snapshot.exists() && Date.now() < snapshot.val().expiresAt) {
+
+                    window.userHasActiveKey = true;
+
+                    keyStatusCard.innerHTML = `<h3>Key Active</h3><p>Your access is valid until: ${new Date(snapshot.val().expiresAt).toLocaleString()}</p>`;
+
+                } else {
+
+                    window.userHasActiveKey = false;
+
+                    keyStatusCard.innerHTML = `<h3>No Active Key</h3><p>Activate a key to access all locked content.</p>`;
+
+                }
+
+            }
+
+            
+
+            async function activateKeyFromUrl(user) {
+
+                const urlParams = new URLSearchParams(window.location.search);
+
+                const keyToActivate = urlParams.get('activate_key');
+
+                if (!keyToActivate) return;
+
+    
+
+                history.pushState({}, document.title, window.location.pathname); // Clear URL
+
+                if (!user) return;
+
+    
+
+                const keyRef = ref(db, `keys/${keyToActivate}`);
+
+                const keySnap = await get(keyRef);
+
+    
+
+                if (!keySnap.exists() || (keySnap.val().uid && keySnap.val().uid !== user.uid) || Date.now() > keySnap.val().expiresAt) {
+
+                    alert('Invalid, expired, or already used activation link.'); return;
+
+                }
+
+    
+
+                const updates = {};
+
+                updates[`keys/${keyToActivate}/uid`] = user.uid;
+
+                updates[`users/${user.uid}/activeKey`] = { key: keyToActivate, expiresAt: keySnap.val().expiresAt };
+
+    
+
+                try {
+
+                    await update(ref(db), updates);
+
+                    alert('Key activated successfully!');
+
+                    await checkUserKey(user);
+
+                } catch (error) {
+
+                    alert('Failed to activate key.');
+
+                }
+
+            }
+
+    
+
+            // --- Live Lecture (User-Side) ---
+
+            function listenForLiveLectures() {
+
+                onValue(liveLecturesRef, (snapshot) => {
+
+                    liveContainer.innerHTML = '';
+
+                    if (!snapshot.exists()) return;
+
+                    snapshot.forEach((childSnapshot) => {
+
+                        const liveId = childSnapshot.key;
+
+                        const liveData = childSnapshot.val();
+
+                        if (Date.now() > liveData.endTime) {
+
+                            convertToRecorded(liveId, liveData);
+
+                        } else {
+
+                            renderLiveCard(liveId, liveData);
+
+                        }
+
+                    });
+
+                });
+
+            }
+
+    
+
+            function renderLiveCard(liveId, liveData) {
+
+                const card = document.createElement('div');
+
+                card.className = 'live-card';
+
+                card.innerHTML = `<div><h3>${liveData.title}</h3><p>Join this live session now!</p></div><span class="live-indicator">LIVE</span>`;
+
+                card.onclick = () => {
+
+                    navigationState = [{type: 'live', id: liveId, name: liveData.title}];
+
+                    showLecture(liveData, true);
+
+                };
+
+                liveContainer.appendChild(card);
+
+            }
+
+    
+
+            async function convertToRecorded(liveId, liveData) {
+
+                const { path } = liveData;
+
+                const destinationRef = push(ref(db, `classes/${path.classId}/batches/${path.batchId}/subjects/${path.subjectId}/chapters/${path.chapterId}/lectures`));
+
+                const recordedData = { ...liveData };
+
+                delete recordedData.startTime;
+
+                delete recordedData.endTime;
+
+                delete recordedData.path;
+
+                try {
+
+                    await set(destinationRef, recordedData);
+
+                    await remove(ref(db, `liveLectures/${liveId}`));
+
+                } catch (error) { console.error(`Client failed to convert live lecture ${liveId}:`, error); }
+
+            }
+
+    
+
+            // --- MAIN APP CONTROLLER ---
+
+            onAuthStateChanged(auth, user => {
+
+                const urlParams = new URLSearchParams(window.location.search);
+
+                if (urlParams.has('activate_key') && !user) {
+
+                    alert('Please log in or create an account to activate your key.');
+
+                }
+
+    
+
+                if (user) {
+
+                    authScreen.classList.add('hidden');
+
+                    mainApp.classList.remove('hidden');
+
+                    
+
+                    activateKeyFromUrl(user);
+
+                    checkUserKey(user);
+
+                    listenForLiveLectures();
+
+    
+
+                    onValue(classesRef, (snapshot) => {
+
+                        window.allData = snapshot.val();
+
+                        if (navigationState.length === 0) {
+
+                             navigateTo('classes-view', 'Classes', window.allData, renderClassCard);
+
+                        }
+
+                    });
+
+                } else {
+
+                    mainApp.classList.add('hidden');
+
+                    authScreen.classList.remove('hidden');
+
+                    window.userHasActiveKey = false;
+
+                }
+
+            });
+
+    
+
+        </script>
+
+    </body>
+
+    </html>
+
+    
